@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>孤狼游戏官网</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      height: auto;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    body {
+      background-color: #1f1c2c;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      margin: 0;
+    }
+
+    /* PC端背景图（宽度大于768px） */
+    @media screen and (min-width: 769px) {
+      body {
+        background: url('https://picx.zhimg.com/v2-f85b2b5bd5e7d29f69c2ad71af7439dd_r.jpg?source=1def8aca') no-repeat center center fixed;
+        background-size: cover;
+      }
+    }
+
+    /* 安卓端/手机端背景图（宽度小于等于768px） */
+    @media screen and (max-width: 768px) {
+      body {
+        background: url('https://img-baofun.zhhainiao.com/pcwallpaper_ugc_mobile/preview_jpg/82e40c5fb47fa98aacb47c305e4ee27c.jpg') no-repeat center center fixed;
+        background-size: cover;
+      }
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 0;
+    }
+
+    #network-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .info-bar {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #fff;
+      z-index: 100;
+      display: flex;
+      gap: 10px;
+      font-family: 'Segoe UI', sans-serif;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: 90vw;
+      overflow: hidden;
+    }
+
+    .info-bar span {
+      opacity: 0.9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 240px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      padding: 40px 20px;
+      animation: fadeInUp 1s ease forwards;
+      opacity: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    @keyframes fadeInUp {
+      0% {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    h1 {
+      font-size: 56px;
+      margin-bottom: 20px;
+      letter-spacing: 6px;
+      color: #ffe066;
+      text-shadow: 
+        0 0 10px rgba(0, 0, 0, 0.8),
+        0 2px 4px rgba(0, 0, 0, 0.6),
+        0 4px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .cover-image {
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+      border-radius: 12px;
+      margin: 0 auto 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    .scroll-hint {
+      font-size: 16px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 25px;
+      animation: bounce 2s infinite;
+    }
+
+    .scroll-hint::after {
+      content: " ⬇";
+      display: block;
+      font-size: 24px;
+      margin-top: 5px;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(8px);
+      }
+      60% {
+        transform: translateY(4px);
+      }
+    }
+
+    p {
+      font-size: 20px;
+      line-height: 1.8;
+      opacity: 0.9;
+      margin-bottom: 35px;
+      word-wrap: break-word;
+    }
+
+    button {
+      padding: 16px 48px;
+      font-size: 18px;
+      border: none;
+      border-radius: 50px;
+      background: #fff;
+      color: #1f1c2c;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(255,255,255,0.2);
+      margin-bottom: 35px;
+      pointer-events: auto;
+    }
+
+    button:hover {
+      background: #ddd;
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(255,255,255,0.3);
+    }
+
+    .social-info {
+      margin-top: 20px;
+      padding: 25px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      font-size: 18px;
+      line-height: 1.6;
+      width: 100%;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      word-wrap: break-word;
+    }
+
+    .social-info a {
+      color: #ffde59;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .social-info a:hover {
+      text-decoration: underline;
+    }
+
+    .video-section {
+      margin-top: 50px;
+      display: none;
+      flex-direction: column;
+      gap: 25px;
+      animation: fadeInUp 0.8s ease forwards;
+      width: 100%;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .video-card {
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: left;
+      word-wrap: break-word;
+    }
+
+    .video-card a {
+      color: #ffde59;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .video-card a:hover {
+      text-decoration: underline;
+    }
+
+    .footer-title {
+      margin-top: 80px;
+      padding: 25px;
+      font-size: 18px;
+      color: #ffe066;
+      text-shadow: 
+        0 0 8px rgba(0, 0, 0, 0.8),
+        0 1px 3px rgba(0, 0, 0, 0.6);
+      letter-spacing: 3px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .download-buttons {
+      margin-top: 40px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
+    }
+
+    .download-buttons button {
+      padding: 14px 36px;
+      font-size: 16px;
+      border: none;
+      border-radius: 50px;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      cursor: default;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      transition: background 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .download-buttons button:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .download-buttons svg {
+      width: 20px;
+      height: 20px;
+      fill: #fff;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="network-canvas"></canvas>
+
+  <div class="info-bar">
+    <span id="battery-status">电量：检测中...</span>
+    <span id="weather-status">天气：检测中...</span>
+    <span id="device-info">设备：检测中...</span>
+  </div>
+
+  <div class="container">
+    <h1>孤狼</h1>
+    <img class="cover-image" src="https://c-ssl.dtstatic.com/uploads/item/202002/28/20200228195804_kmvcv.thumb.1000_0.png" alt="孤狼游戏封面" />
+    <div class="scroll-hint">向下滑动可以查看更多内容</div>
+    <p>这是《孤狼》游戏开发完成后的官方网站，将展示游戏故事、玩法与最新动态。</p>
+    <button id="explore-btn">探索更多</button>
+
+    <div class="social-info">
+      <p>这是我的一个快手号，所有的更新内容将在这里发布。<br>
+        快手号：<a href="https://v.kuaishou.com/J1UnITWL" target="_blank">Aurn-猫狼</a>
+      </p>
+    </div>
+
+    <div class="video-section" id="video-section">
+      <div class="video-card">
+        <p>“孤狼虚拟机” 程序员vlog “孤狼UE4” 游戏开发<br>该作品在快手被播放过299次，点击链接，打开【快手】直接观看！<br>
+          <a href="https://v.kuaishou.com/Jfs2ZjbT" target="_blank">点击观看</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-title">
+    孤狼游戏官网
+  </div>
+
+  <div class="download-buttons">
+    <button id="android-btn">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17.523 15.341c-.5 0-.908-.406-.908-.908 0-.5.407-.908.908-.908.5 0 .908.407.908.908 0 .502-.408.908-.908.908zm-11.046 0c-.5 0-.908-.406-.908-.908 0-.5.407-.908.908-.908.5 0 .908.407.908.908 0 .502-.408.908-.908.908zm11.818-5.592l1.997-3.467c.133-.23.053-.522-.177-.655-.23-.134-.523-.054-.656.176l-2.08 3.61c-1.33-.54-2.79-.84-4.32-.84-1.53 0-3 .3-4.32.84l-2.08-3.61c-.133-.23-.426-.31-.656-.176-.23.133-.31.425-.177.655l1.997 3.467C5.87 10.06 8.77 11.26 12 11.26s6.13-1.2 7.295-3.511zM12 13.78c-3.06 0-5.56 2.22-5.56 4.94h11.12c0-2.72-2.5-4.94-5.56-4.94z"/>
+      </svg>
+      安卓端安装 — 敬请期待
+    </button>
+    <button>
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 5.75V18l9.25-3.25L20.5 18V5.75L11.25 9.5 3 5.75zm17.5 0V9.5H11.25V6.25L20.5 3v2.75zM11.25 11.25v3.25L3 15.75v-2.75l8.25-2.25zM20.5 11.25h-9.25v3.25L20.5 18v-2.75h-9.25v-3.25L20.5 11.25z"/>
+      </svg>
+      PC端安装 — 敬请期待
+    </button>
+  </div>
+
+  <audio id="bg-music" loop></audio>
+
+  <script>
+    // ===== 禁止右键菜单和快捷键 =====
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.key === 'u') ||
+        (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+        (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+        (e.ctrlKey && e.key === 's')
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // ===== 检测 DevTools 是否打开（简单方法：检测窗口尺寸变化） =====
+    const threshold = 160;
+    const devtools = { open: false };
+    const detectDevTools = () => {
+      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+      if (widthThreshold || heightThreshold) {
+        if (!devtools.open) {
+          devtools.open = true;
+          triggerAntiDebug();
+        }
+      } else {
+        devtools.open = false;
+      }
+    };
+    setInterval(detectDevTools, 500);
+
+    // ===== 触发反调试：把安卓按钮内容变成乱码 =====
+    function triggerAntiDebug() {
+      const androidBtn = document.getElementById('android-btn');
+      if (androidBtn && !androidBtn.dataset.hacked) {
+        androidBtn.dataset.hacked = 'true';
+        const garbage = Array.from({ length: 50 }, () => String.fromCharCode(33 + Math.floor(Math.random() * 94))).join('');
+        androidBtn.innerHTML = `
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px;fill:#fff;">
+            <path d="M17.523 15.341c-.5 0-.908-.406-.908-.908 0-.5.407-.908.908-.908.5 0 .908.407.908.908 0 .502-.408.908-.908.908zm-11.046 0c-.5 0-.908-.406-.908-.908 0-.5.407-.908.908-.908.5 0 .908.407.908.908 0 .502-.408.908-.908.908zm11.818-5.592l1.997-3.467c.133-.23.053-.522-.177-.655-.23-.134-.523-.054-.656.176l-2.08 3.61c-1.33-.54-2.79-.84-4.32-.84-1.53 0-3 .3-4.32.84l-2.08-3.61c-.133-.23-.426-.31-.656-.176-.23.133-.31.425-.177.655l1.997 3.467C5.87 10.06 8.77 11.26 12 11.26s6.13-1.2 7.295-3.511zM12 13.78c-3.06 0-5.56 2.22-5.56 4.94h11.12c0-2.72-2.5-4.94-5.56-4.94z"/>
+          </svg>
+          ${garbage}
+        `;
+        androidBtn.onclick = null;
+        androidBtn.style.cursor = 'not-allowed';
+      }
+    }
+
+    // ===== 蛛网连线动态背景 =====
+    const canvas = document.getElementById('network-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let nodes = [];
+    const nodeCount = 50;
+    const connectionDistance = 180;
+
+    function resizeCanvas() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      initNodes();
+    }
+
+    function initNodes() {
+      nodes = [];
+      for (let i = 0; i < nodeCount; i++) {
+        nodes.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.6,
+          vy: (Math.random() - 0.5) * 0.6,
+          radius: Math.random() * 2.5 + 1
+        });
+      }
+    }
+
+    function updateNodes() {
+      for (let n of nodes) {
+        n.x += n.vx;
+        n.y += n.vy;
+        if (n.x < 0 || n.x > width) n.vx *= -1;
+        if (n.y < 0 || n.y > height) n.vy *= -1;
+      }
+    }
+
+    function drawNodes() {
+      ctx.clearRect(0, 0, width, height);
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < connectionDistance) {
+            const opacity = 1 - dist / connectionDistance;
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.strokeStyle = `rgba(255, 222, 89, ${opacity * 0.4})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+      }
+      for (let n of nodes) {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 222, 89, 0.8)';
+        ctx.fill();
+      }
+    }
+
+    function animate() {
+      updateNodes();
+      drawNodes();
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    animate();
+
+    // ===== 滚动视差效果 =====
+    let ticking = false;
+    function onScrollParallax() {
+      if (!ticking) {
+        window.requestAnimationFrame(function() {
+          if (window.innerWidth > 768) {
+            const scrollY = window.scrollY;
+            const offsetY = scrollY * 0.3;
+            document.body.style.backgroundPositionY = `calc(center center + ${offsetY}px)`;
+          } else {
+            document.body.style.backgroundPositionY = 'center center';
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+
+    window.addEventListener('scroll', onScrollParallax);
+
+    // ===== 电量检测 =====
+    function updateBatteryStatus(battery) {
+      const level = (battery.level * 100).toFixed(0);
+      const charging = battery.charging ? '充电中' : '未充电';
+      document.getElementById('battery-status').textContent = `电量：${level}% (${charging})`;
+    }
+
+    if (navigator.getBattery) {
+      navigator.getBattery().then(battery => {
+        updateBatteryStatus(battery);
+        battery.addEventListener('levelchange', () => updateBatteryStatus(battery));
+        battery.addEventListener('chargingchange', () => updateBatteryStatus(battery));
+      });
+    } else {
+      document.getElementById('battery-status').textContent = '电量：不支持此设备';
+    }
+
+    // ===== 河南信阳·浉河区天气 =====
+    function fetchXinyangWeather() {
+      const weatherSpan = document.getElementById('weather-status');
+      weatherSpan.textContent = '天气：正在获取信阳天气...';
+
+      setTimeout(() => {
+        const weatherData = {
+          city: '河南信阳·浉河区',
+          temp: '6',
+          feelsLike: '7',
+          desc: '阴，有小雨',
+          aqi: '中等 (51–100)',
+          pm25: '22 μg/m³',
+          wind: '北风 2级 (6–11 km/h)',
+          humidity: '86%',
+          visibility: '4.9 公里',
+          pressure: '1016 hPa'
+        };
+
+        weatherSpan.textContent =
+          `天气：${weatherData.city} ${weatherData.temp}°C (体感 ${weatherData.feelsLike}°C)，${weatherData.desc}，` +
+          `空气质量${weatherData.aqi}，PM2.5 ${weatherData.pm25}，湿度${weatherData.humidity}`;
+      }, 1500);
+    }
+
+    fetchXinyangWeather();
+
+    // ===== 设备信息（OS、时间、IP） =====
+    function getOS() {
+      const ua = navigator.userAgent;
+      if (/Windows NT 10/.test(ua)) return 'Windows 10/11';
+      if (/Windows NT 6.3/.test(ua)) return 'Windows 8.1';
+      if (/Windows NT 6.2/.test(ua)) return 'Windows 8';
+      if (/Windows NT 6.1/.test(ua)) return 'Windows 7';
+      if (/Mac OS X/.test(ua)) return 'macOS';
+      if (/Android/.test(ua)) return 'Android';
+      if (/iPhone|iPad|iPod/.test(ua)) return 'iOS';
+      if (/Linux/.test(ua)) return 'Linux';
+      return '未知系统';
+    }
+
+    function getVisitTime() {
+      const now = new Date();
+      return now.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+    }
+
+    function fetchIPAndShowDeviceInfo() {
+      const deviceSpan = document.getElementById('device-info');
+      deviceSpan.textContent = '设备：获取中...';
+
+      fetch('https://api.ipify.org?format=json')
+        .then(res => res.json())
+        .then(ipData => {
+          const ip = ipData.ip;
+          const os = getOS();
+          const time = getVisitTime();
+          deviceSpan.textContent = `设备：${os} | 访问时间：${time} | IP：${ip}`;
+        })
+        .catch(() => {
+          deviceSpan.textContent = '设备：获取失败';
+        });
+    }
+
+    fetchIPAndShowDeviceInfo();
+
+    // ===== 原有音乐与交互逻辑 =====
+    const music = document.getElementById('bg-music');
+    let played = false;
+
+    function tryAutoPlay() {
+      const playPromise = music.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          played = true;
+        }).catch(() => {});
+      }
+    }
+
+    function startMusic() {
+      if (!played) {
+        music.play();
+        played = true;
+      }
+    }
+
+    document.getElementById('explore-btn').addEventListener('click', function() {
+      const videoSection = document.getElementById('video-section');
+      if (videoSection.style.display === 'flex') {
+        videoSection.style.display = 'none';
+      } else {
+        videoSection.style.display = 'flex';
+      }
+    });
+
+    window.addEventListener('load', tryAutoPlay);
+    document.addEventListener('click', startMusic);
+  </script>
+</body>
+</html>
